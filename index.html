@@ -6,1169 +6,1181 @@
   <title>بازی پنل - iswitch</title>
   <style>
     /* استایل‌های کامل */
-    /* استایل‌های کامل */
-/* استایل‌های کامل */
-@font-face {
-  font-family: 'Digital7';
-  src: url('assets/digital-7.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+    @font-face {
+      font-family: 'Digital7';
+      src: url('assets/digital-7.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
 
-/* iOS-specific fixes */
-@supports (-webkit-touch-callout: none) {
-  /* iOS-only styles */
-  body {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-    cursor: pointer;
-  }
-  
-  .protector-area {
-    cursor: pointer;
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
-    tap-highlight-color: rgba(0,0,0,0);
-  }
-  
-  .protector-area.touching {
-    background-color: rgba(255,255,0,0.3) !important;
-    transform: scale(0.98);
-    transition: transform 0.1s;
-  }
-  
-  .ctrl.active {
-    background: #1e40af !important;
-    transform: scale(0.95);
-  }
-  
-  /* جلوگیری از zoom دو بار لمس */
-  input, textarea, button, .protector-area, .ctrl {
-    touch-action: manipulation;
-    font-size: 16px !important; /* جلوگیری از zoom در iOS */
-  }
-  
-  .modal {
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  /* fix برای position: fixed در iOS */
-  .modal {
-    position: fixed;
-    height: 100%;
-    width: 100%;
-  }
-}
+    :root {
+      --bg: #071025;
+      --panel-w: 1808px;
+      --panel-h: 592px;
+      --led-size: 50px;
+      --accent: #00ff9d;
+      --error-color: #fa0536;
+    }
 
-/* جلوگیری از highlight آبی در iOS Safari */
-.protector-area, .ctrl, button {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: linear-gradient(180deg, #051020, #071025 40%);
+      font-family: "Vazirmatn", "Tahoma", sans-serif;
+      color: #e6eef6;
+      padding: 24px;
+      overflow-x: auto;
+    }
 
-/* بهبود response لمسی */
-@media (hover: none) and (pointer: coarse) {
-  .protector-area {
-    min-height: 70px;
-    min-width: 70px;
-  }
-  
-  .ctrl {
-    min-height: 60px;
-    min-width: 60px;
-    padding: 15px;
-  }
-}
+    /* پنل اصلی */
+    .panel-wrap {
+      position: relative;
+      width: var(--panel-w);
+      height: var(--panel-h);
+      background: transparent;
+    }
 
-:root {
-  --bg: #071025;
-  --panel-w: 1808px;
-  --panel-h: 592px;
-  --led-size: 50px;
-  --accent: #00ff9d;
-  --error-color: #fa0536;
-}
+    /* عکس پس زمینه */
+    .panel-bg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  background: linear-gradient(180deg, #051020, #071025 40%);
-  font-family: "Vazirmatn", "Tahoma", sans-serif;
-  color: #e6eef6;
-  padding: 24px;
-  overflow-x: auto;
-}
+    /* همه المان‌ها روی عکس */
+    .mushroom, .push-btn, .selector, .joystick, .fan-wrap, 
+    .led, .protector-area, .game-timer, .stages, 
+    .map-small, .error-badge, .win-light {
+      position: absolute;
+      z-index: 2;
+    }
 
-/* پنل اصلی */
-.panel-wrap {
-  position: relative;
-  width: var(--panel-w);
-  height: var(--panel-h);
-  background: transparent;
-}
+    /* LED ها - استایل دسکتاپ */
+    .led {
+      width: var(--led-size);
+      height: var(--led-size);
+      border-radius: 50%;
+      box-shadow: 0 0 0 rgba(0,0,0,0.0);
+      opacity: 0.35;
+      transition: all .18s ease;
+      pointer-events: none;
+    }
+    .led[data-state="on"] { 
+      opacity: 1; 
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.15)); 
+    }
 
-/* عکس پس زمینه */
-.panel-bg {
-  width: 100%;
-  height: 100%;
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
+    /* LED های پررنگ‌تر - موقعیت دسکتاپ */
+    .led-red { 
+      background: radial-gradient(circle at 30% 30%, #f72c2c, #ff0000);
+      left: 1274px; 
+      top: 138px; 
+      z-index: 3;
+    }
+    .led-yellow { 
+      background: radial-gradient(circle at 30% 30%, #ffd93d, #ff9f00);
+      left: 1274px; 
+      top: 45px; 
+      z-index: 2;
+    }
+    .led-green { 
+      background: radial-gradient(circle at 30% 30%, #6bff6b, #00ff00);
+      left: 1274px; 
+      top: 138px; 
+      z-index: 3;
+    }
 
-/* همه المان‌ها روی عکس */
-.mushroom, .push-btn, .selector, .joystick, .fan-wrap, 
-.led, .protector-area, .game-timer, .stages, 
-.map-small, .error-badge, .win-light {
-  position: absolute;
-  z-index: 2;
-}
+    /* وقتی روشن هستند درخشش بیشتر */
+    .led[data-state="on"] { 
+      opacity: 1; 
+      filter: drop-shadow(0 0 15px currentColor) brightness(1.3);
+    }
 
-/* LED ها - استایل دسکتاپ */
-.led {
-  width: var(--led-size);
-  height: var(--led-size);
-  border-radius: 50%;
-  box-shadow: 0 0 0 rgba(0,0,0,0.0);
-  opacity: 0.35;
-  transition: all .18s ease;
-  pointer-events: none;
-}
-.led[data-state="on"] { 
-  opacity: 1; 
-  filter: drop-shadow(0 0 10px rgba(255,255,255,0.15)); 
-}
+    /* پوش باتن ها */
+    .push-btn {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: none;
+      background: #d9534f;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .06s ease, box-shadow .06s ease;
+      box-shadow: 0 8px 0 rgba(0,0,0,0.4);
+    }
 
-/* LED های پررنگ‌تر - موقعیت دسکتاپ */
-.led-red { 
-  background: radial-gradient(circle at 30% 30%, #f72c2c, #ff0000);
-  left: 1274px; 
-  top: 138px; 
-  z-index: 3;
-}
-.led-yellow { 
-  background: radial-gradient(circle at 30% 30%, #ffd93d, #ff9f00);
-  left: 1274px; 
-  top: 45px; 
-  z-index: 2;
-}
-.led-green { 
-  background: radial-gradient(circle at 30% 30%, #6bff6b, #00ff00);
-  left: 1274px; 
-  top: 138px; 
-  z-index: 3;
-}
+    /* موقعیت پوش باتن ها - دسکتاپ */
+    #S1 {left: 1448px; top: 142px; background: #00000000; }
+    #S4_START { left: 1056px; top: 186px; background: #00000000; }
+    #S4_STOP { left: 1056px; top: 240px; background: #ef444400; }
+    #S6_START { left: 1170px; top: 164px; background: #00000000; }
+    #S6_STOP { left: 1170px; top: 240px; background: #00000000; }
+    #S7 { left: 1626px;top: 357.3px; background: #00000000; }
+    #S8 { left: 1626px;top: 238.3px; background: #00000000; }
+    #S10 { left: 1626px;top: 140px;background: #39796400;}
 
-/* وقتی روشن هستند درخشش بیشتر */
-.led[data-state="on"] { 
-  opacity: 1; 
-  filter: drop-shadow(0 0 15px currentColor) brightness(1.3);
-}
+    /* فشار دادن */
+    .push-btn[aria-pressed="true"] {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 rgba(0,0,0,0.6);
+    }
+    .push-btn[aria-pressed="true"]::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 12px;
+      box-shadow: 0 0 5px rgba(255,255,255,0.08);
+    }
 
-/* پوش باتن ها */
-.push-btn {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  border: none;
-  background: #d9534f;
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform .06s ease, box-shadow .06s ease;
-  box-shadow: 0 8px 0 rgba(0,0,0,0.4);
-}
+    /* سلکتورها */
+    .selector {
+      width: 48px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform .08s ease;
+      user-select: none;
+    }
+    .selector[data-pos="left"] { transform: rotate(310deg); }
+    .selector[data-pos="right"] { transform: rotate(18deg); }
 
-/* موقعیت پوش باتن ها - دسکتاپ */
-#S1 {left: 1448px; top: 142px; background: #00000000; }
-#S4_START { left: 1056px; top: 186px; background: #00000000; }
-#S4_STOP { left: 1056px; top: 240px; background: #ef444400; }
-#S6_START { left: 1170px; top: 164px; background: #00000000; }
-#S6_STOP { left: 1170px; top: 240px; background: #00000000; }
-#S7 { left: 1626px;top: 357.3px; background: #00000000; }
-#S8 { left: 1626px;top: 238.3px; background: #00000000; }
-#S10 { left: 1626px;top: 140px;background: #39796400;}
+    /* موقعیت سلکتورها - دسکتاپ */
+    #S2 { left: 1450px; top: 241.3px; }
+    #S3 { left: 1274px; top: 244px; }
+    #S5 { left: 1450px; top: 366px; }
 
-/* فشار دادن */
-.push-btn[aria-pressed="true"] {
-  transform: translateY(6px);
-  box-shadow: 0 2px 0 rgba(0,0,0,0.6);
-}
-.push-btn[aria-pressed="true"]::after {
-  content: '';
-  position: absolute;
-  inset: -8px;
-  border-radius: 12px;
-  box-shadow: 0 0 5px rgba(255,255,255,0.08);
-}
+    /* جوی استیک */
+    .joystick {
+      left: 1666px;
+      top: 34px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #111827;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      transition: transform .12s ease;
+    }
+    .joystick[data-pos="down"] { transform: translateY(10px) rotate(6deg); }
 
-/* سلکتورها */
-.selector {
-  width: 48px;
-  height: 28px;
-  border-radius: 6px;
-  background: rgba(0,0,0,0.5);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform .08s ease;
-  user-select: none;
-}
-.selector[data-pos="left"] { transform: rotate(310deg); }
-.selector[data-pos="right"] { transform: rotate(18deg); }
+    /* محافظ - نمایش عدد 300 */
+    .protector-area {
+      left: 23.3%;
+      top: 45.4%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 8px;
+      border: 0px solid #ff3b30;
+    }
 
-/* موقعیت سلکتورها - دسکتاپ */
-#S2 { left: 1450px; top: 241.3px; }
-#S3 { left: 1274px; top: 244px; }
-#S5 { left: 1450px; top: 366px; }
+    .protector-display {
+      font-family: 'Digital7', monospace;
+      font-size: 28px;
+      color: #ff3b30;
+      text-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
+    }
 
-/* جوی استیک */
-.joystick {
-  left: 1666px;
-  top: 34px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: #111827;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  transition: transform .12s ease;
-}
-.joystick[data-pos="down"] { transform: translateY(10px) rotate(6deg); }
+    /* فن ها - استایل دسکتاپ */
+    .fan-wrap {
+      width: 175px;
+      height: 175px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-/* محافظ - نمایش عدد 300 */
-.protector-area {
-  left: 23.3%;
-  top: 45.4%;
-  width: 60px;
-  height: 60px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
-  border-radius: 8px;
-  border: 0px solid #ff3b30;
-}
+    /* Fan Base - استایل دسکتاپ */
+    .fan-base { 
+      position: absolute; 
+      width:100%; 
+      height: 100%; 
+      object-fit: contain; 
+    }
 
-.protector-display {
-  font-family: 'Digital7', monospace;
-  font-size: 28px;
-  color: #ff3b30;
-  text-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
-}
+    .fan-blade {
+      position: absolute; 
+      width: 70%;
+      height: 70%;
+      object-fit: contain; 
+      transform-origin: center center;
+      transition: opacity .16s ease;
+      opacity: 0;
+    }
 
-/* فن ها - استایل دسکتاپ */
-.fan-wrap {
-  width: 175px;
-  height: 175px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    /* موقعیت فن ها - دسکتاپ */
+    #fanBlue { left: 52%; top: 59.7%; }
+    #fanYellow { left: 66.1%; top: 59.7%; }
 
-/* Fan Base - استایل دسکتاپ */
-.fan-base { 
-  position: absolute; 
-  width:100%; 
-  height: 100%; 
-  object-fit: contain; 
-}
+    /* blade rotating class */
+    .rotate-medium {
+      animation: spin 0.7s linear infinite;
+      opacity: 1;
+    }
+    @keyframes spin { 
+      from { transform: rotate(0deg); } 
+      to { transform: rotate(360deg); } 
+    }
 
-.fan-blade {
-  position: absolute; 
-  width: 70%;
-  height: 70%;
-  object-fit: contain; 
-  transform-origin: center center;
-  transition: opacity .16s ease;
-  opacity: 0;
-}
+    /* دکمه قارچی */
+    .mushroom {
+      width: 50px;
+      height: 50px;
+      left: 1450px;
+      top: 40px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 26px;
+    }
 
-/* موقعیت فن ها - دسکتاپ */
-#fanBlue { left: 52%; top: 59.7%; }
-#fanYellow { left: 66.1%; top: 59.7%; }
+    /* تیک مراحل */
+    .stages {
+      right:70%;
+      top: 5%;
+      display: flex;
+      gap: 8px;
+    }
+    .stage {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #a8c0d8;
+      font-size: 13px;
+    }
+    .stage.done { 
+      background: linear-gradient(90deg, #34d399, #10b981); 
+      color: #042018; 
+      box-shadow: 0 6px 16px rgba(16,185,129,0.12); 
+    }
 
-/* blade rotating class */
-.rotate-medium {
-  animation: spin 0.7s linear infinite;
-  opacity: 1;
-}
-@keyframes spin { 
-  from { transform: rotate(0deg); } 
-  to { transform: rotate(360deg); } 
-}
+    /* تایمر کلی بازی */
+    .game-timer {
+      left: 5%;
+      top: 5%;
+      background: rgba(0,0,0,0.6);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-family: 'Digital7', monospace;
+      font-size: 22px;
+      color: #ffd166;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
 
-/* دکمه قارچی */
-.mushroom {
-  width: 50px;
-  height: 50px;
-  left: 1450px;
-  top: 40px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  border-radius: 26px;
-}
+    /* نقشه */
+    .map-small {
+      left: 80%;
+      bottom: 1%;
+      width: 260px;
+      height: 140px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+    .map-thumbnail {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-/* تیک مراحل */
-.stages {
-  right:70%;
-  top: 5%;
-  display: flex;
-  gap: 8px;
-}
-.stage {
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
-  background: rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: #a8c0d8;
-  font-size: 13px;
-}
-.stage.done { 
-  background: linear-gradient(90deg, #34d399, #10b981); 
-  color: #042018; 
-  box-shadow: 0 6px 16px rgba(16,185,129,0.12); 
-}
+    /* خطای کوچک */
+    .error-badge {
+      right: 5%;
+      bottom: 5%;
+      background: var(--error-color);
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all .28s ease;
+    }
+    .error-badge.show { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
 
-/* تایمر کلی بازی */
-.game-timer {
-  left: 5%;
-  top: 5%;
-  background: rgba(0,0,0,0.6);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-family: 'Digital7', monospace;
-  font-size: 22px;
-  color: #ffd166;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-}
+    /* چراغ برنده شدن */
+    .win-light {
+      left: 50%;
+      top: 5%;
+      width: 400px;
+      height: 120px;
+      border-radius: 8px;
+      background: transparent;
+      border: 3px solid rgba(255,255,255,0.1);
+      box-shadow: none;
+      transition: all .3s ease;
+      transform: translateX(-50%);
+    }
 
-/* نقشه */
-.map-small {
-  left: 80%;
-  bottom: 1%;
-  width: 260px;
-  height: 140px;
-  border-radius: 6px;
-  cursor: pointer;
-  border: 2px solid rgba(255,255,255,0.1);
-  overflow: hidden;
-}
-.map-thumbnail {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* خطای کوچک */
-.error-badge {
-  right: 5%;
-  bottom: 5%;
-  background: var(--error-color);
-  color: #fff;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: all .28s ease;
-}
-.error-badge.show { 
-  opacity: 1; 
-  transform: translateY(0); 
-}
-
-/* چراغ برنده شدن */
-.win-light {
-  left: 50%;
-  top: 5%;
-  width: 400px;
-  height: 120px;
-  border-radius: 8px;
-  background: transparent;
-  border: 3px solid rgba(255,255,255,0.1);
-  box-shadow: none;
-  transition: all .3s ease;
-  transform: translateX(-50%);
-}
-
-.win-light.on { 
-  background: transparent;
-  border:3px solid #ffbbb7;
-  box-shadow: 
-      0 0 20px rgba(249,115,22,0.8),
-      0 0 40px rgba(249,115,22,0.4),
-      inset 0 0 15px rgba(249,115,22,0.3);
-  animation: pulse 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes pulse {
-  from {
+    .win-light.on { 
+      background: transparent;
+      border:3px solid #ffbbb7;
       box-shadow: 
-          0 0 15px rgba(249,115,22,0.6),
-          0 0 30px rgba(249,115,22,0.3),
-          inset 0 0 10px rgba(249,115,22,0.2);
-  }
-  to {
-      box-shadow: 
-          0 0 25px rgba(249,115,22,1),
-          0 0 50px rgba(249,115,22,0.6),
-          inset 0 0 20px rgba(249,115,22,0.4);
-  }
-}
+          0 0 20px rgba(249,115,22,0.8),
+          0 0 40px rgba(249,115,22,0.4),
+          inset 0 0 15px rgba(249,115,22,0.3);
+      animation: pulse 1.5s ease-in-out infinite alternate;
+    }
 
-.buzzer-light {
-  position: absolute;
-  left: 970px;
-  top: 260px;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: #ff0000;
-  transform: translateX(-50%);
-  opacity: 0;
-  box-shadow: 0 0 0 rgba(255,0,0,0);
-  transition: all 0.3s ease;
-  z-index: 1000;
-}
+    @keyframes pulse {
+      from {
+          box-shadow: 
+              0 0 15px rgba(249,115,22,0.6),
+              0 0 30px rgba(249,115,22,0.3),
+              inset 0 0 10px rgba(249,115,22,0.2);
+      }
+      to {
+          box-shadow: 
+              0 0 25px rgba(249,115,22,1),
+              0 0 50px rgba(249,115,22,0.6),
+              inset 0 0 20px rgba(249,115,22,0.4);
+      }
+    }
 
-/* انیمیشن چشمک زن */
-.buzzer-light.blinking {
-  opacity: 1;
-  animation: blink 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes blink {
-  0% {
+    .buzzer-light {
+      position: absolute;
+      left: 970px;
+      top: 260px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
       background: #ff0000;
-      box-shadow: 0 0 30px rgba(255,0,0,0.9);
-      transform: translateX(-50%) scale(1);
-  }
-  100% {
-      background: #ff6b6b;
-      box-shadow: 0 0 60px rgba(255,0,0,1);
-      transform: translateX(-50%) scale(1.2);
-  }
-}
+      transform: translateX(-50%);
+      opacity: 0;
+      box-shadow: 0 0 0 rgba(255,0,0,0);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
 
-/* مودال محافظ */
-.modal { 
-  position: fixed; 
-  inset: 0; 
-  display: none; 
-  align-items: center; 
-  justify-content: center; 
-  z-index: 50; 
-}
-.modal.open { 
-  display: flex; 
-}
-.modal-backdrop { 
-  position: absolute; 
-  inset: 0; 
-  background: rgba(0,0,0,0);
+    /* انیمیشن چشمک زن */
+    .buzzer-light.blinking {
+      opacity: 1;
+      animation: blink 0.5s ease-in-out infinite alternate;
+    }
 
-}
-.modal-box { 
-  position: relative; 
-  z-index: 60; 
-  background: #0b1220; 
-  padding: 18px; 
-  border-radius: 12px; 
-  min-width: 260px; 
-  color: #fff; 
-  box-shadow: 0 18px 50px rgba(0,0,0,0.6); 
-  transform: scale(.8); 
-  transition: transform .28s ease; 
-}
-.modal.open .modal-box { 
-  transform: scale(1); 
-}
+    @keyframes blink {
+      0% {
+          background: #ff0000;
+          box-shadow: 0 0 30px rgba(255,0,0,0.9);
+          transform: translateX(-50%) scale(1);
+      }
+      100% {
+          background: #ff6b6b;
+          box-shadow: 0 0 60px rgba(255,0,0,1);
+          transform: translateX(-50%) scale(1.2);
+      }
+    }
 
-/* protector UI */
-.protector-ui { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 12px; 
-  align-items: center; 
-}
-.protector-title { 
-  font-size: 20px; 
-  font-weight: 900; 
-  color: #9fd5ff; 
-}
-.protector-value { 
-  font-family: 'Digital7'; 
-  font-size: 38px; 
-  background: #000; 
-  padding: 6px 12px; 
-  border-radius: 8px; 
-  color: #00ff80; 
-  transition: all 0.1s ease;
-}
-.protector-value.changing {
-  color: #ffd166;
-  transform: scale(1.05);
-}
-.protector-controls { 
-  display: flex; 
-  gap: 8px; 
-}
-.ctrl { 
-  padding: 8px 12px; 
-  border-radius: 8px; 
-  border: none; 
-  background: #111827; 
-  color: #fff; 
-  cursor: pointer; 
-  font-weight: 700; 
-  transition: all 0.1s ease;
-}
-.ctrl:active {
-  background: #1e40af !important;
-  transform: scale(0.95);
-}
-.prot-close { 
-  cursor: pointer; 
-  color: #9fb1c9; 
-  font-size: 13px; 
-}
+    /* مودال محافظ */
+    .modal { 
+      position: fixed; 
+      inset: 0; 
+      display: none; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 50; 
+    }
+    .modal.open { 
+      display: flex; 
+    }
+    .modal-backdrop { 
+      position: absolute; 
+      inset: 0; 
+      background: rgba(0,0,0,0.5); 
+    }
+    .modal-box { 
+      position: relative; 
+      z-index: 60; 
+      background: #0b1220; 
+      padding: 18px; 
+      border-radius: 12px; 
+      min-width: 260px; 
+      color: #fff; 
+      box-shadow: 0 18px 50px rgba(0,0,0,0.6); 
+      transform: scale(.8); 
+      transition: transform .28s ease; 
+    }
+    .modal.open .modal-box { 
+      transform: scale(1); 
+    }
 
-/* مودال نقشه */
-.map-box {
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: auto;
-}
-.map-box img {
-  width: 100%;
-  height: auto;
-  max-width: 800px;
-}
+    /* protector UI */
+    .protector-ui { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 12px; 
+      align-items: center; 
+    }
+    .protector-title { 
+      font-size: 20px; 
+      font-weight: 900; 
+      color: #9fd5ff; 
+    }
+    .protector-value { 
+      font-family: 'Digital7'; 
+      font-size: 38px; 
+      background: #000; 
+      padding: 6px 12px; 
+      border-radius: 8px; 
+      color: #00ff80; 
+      transition: all 0.1s ease;
+    }
+    .protector-value.changing {
+      color: #ffd166;
+      transform: scale(1.05);
+    }
+    .protector-controls { 
+      display: flex; 
+      gap: 8px; 
+    }
+    .ctrl { 
+      padding: 8px 12px; 
+      border-radius: 8px; 
+      border: none; 
+      background: #111827; 
+      color: #fff; 
+      cursor: pointer; 
+      font-weight: 700; 
+      transition: all 0.1s ease;
+    }
+    .ctrl:active {
+      background: #1e40af !important;
+      transform: scale(0.95);
+    }
+    .prot-close { 
+      cursor: pointer; 
+      color: #9fb1c9; 
+      font-size: 13px; 
+    }
 
-/* مودال نقشه */
-.map-modal .modal-box {
-  max-width: 95vw;
-  max-height: 95vh;
-  padding: 0;
-  background: transparent;
-  box-shadow: 0 25px 80px rgba(0,0,0,0.9);
-  border: 3px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  overflow: hidden;
-}
+    /* مودال نقشه */
+    .map-box {
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: auto;
+    }
+    .map-box img {
+      width: 100%;
+      height: auto;
+      max-width: 800px;
+    }
 
-.map-large {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
+    /* مودال نقشه */
+    .map-modal .modal-box {
+      max-width: 95vw;
+      max-height: 95vh;
+      padding: 0;
+      background: transparent;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.9);
+      border: 3px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
 
-/* دکمه بستن نقشه */
-.map-close {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(0,0,0,0.7);
-  color: white;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 20px;
-  z-index: 70;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .map-large {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
 
-.map-close:hover {
-  background: rgba(0,0,0,0.9);
-}
+    /* دکمه بستن نقشه */
+    .map-close {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      z-index: 70;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-/* ==================== */
-/* استایل‌های ریسپانسیو برای موبایل */
-/* ==================== */
+    .map-close:hover {
+      background: rgba(0,0,0,0.9);
+    }
 
-@media (max-width: 1808px) {
-  .panel-wrap {
-    transform: scale(0.8);
-    transform-origin: top center;
-  }
-}
+    /* ==================== */
+    /* استایل‌های ریسپانسیو برای موبایل */
+    /* ==================== */
 
-@media (max-width: 1400px) {
-  .panel-wrap {
-    transform: scale(0.7);
-  }
-  body {
-    padding: 16px;
-  }
-}
+    @media (max-width: 1808px) {
+      .panel-wrap {
+        transform: scale(0.8);
+        transform-origin: top center;
+      }
+    }
 
-@media (max-width: 1200px) {
-  .panel-wrap {
-    transform: scale(0.6);
-  }
-  body {
-    padding: 12px;
-    overflow-x: scroll;
-  }
-}
+    @media (max-width: 1400px) {
+      .panel-wrap {
+        transform: scale(0.7);
+      }
+      body {
+        padding: 16px;
+      }
+    }
 
-@media (max-width: 992px) {
-  .panel-wrap {
-    transform: scale(0.5);
-  }
-  body {
-    padding: 10px;
-    align-items: center;
-  }
-  
-  /* تنظیمات برای المان‌ها در تبلت */
-  .led {
-    width: 40px;
-    height: 40px;
-  }
-  
-  /* موقعیت LED ها در تبلت */
-  .led-red, .led-yellow, .led-green {
-    left: 52% !important;
-    transform: translateX(-50%) !important;
-  }
-  
-  .led-red, .led-green {
-    top: 18% !important;
-  }
-  
-  .led-yellow {
-    top: 10% !important;
-  }
-  
-  .push-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 12px;
-  }
-  
-  .selector {
-    width: 40px;
-    height: 24px;
-    font-size: 12px;
-  }
-  
-  .mushroom {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .game-timer {
-    font-size: 18px;
-    padding: 6px 10px;
-  }
-  
-  .stage {
-    width: 22px;
-    height: 22px;
-    font-size: 11px;
-  }
-  
-  .protector-area {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .protector-display {
-    font-size: 24px;
-  }
-  
-  /* فن‌ها در تبلت */
-  .fan-wrap {
-    width: 140px;
-    height: 140px;
-  }
-  
-  .fan-blade {
-    width: 98px;
-    height: 98px;
-  }
-  
-  /* Fan Base در تبلت */
-  .fan-base {
-    position: absolute;
-    width: 110%;
-    height: 110%;
-    object-fit: contain;
-    top: 1%;
-    left: 1%;
-  }
-  
-  /* موقعیت فن ها در تبلت */
-  #fanBlue, #fanYellow {
-    transform: scale(0.9);
-  }
-}
+    @media (max-width: 1200px) {
+      .panel-wrap {
+        transform: scale(0.6);
+      }
+      body {
+        padding: 12px;
+        overflow-x: scroll;
+      }
+    }
 
-@media (max-width: 768px) {
-  .panel-wrap {
-    transform: scale(0.45);
-  }
-  
-  /* تنظیمات مودال برای موبایل */
-  .modal-box {
-    min-width: 90vw;
-    max-width: 95vw;
-    padding: 15px;
-    margin: 10px;
-  }
-  
-  .protector-value {
-    font-size: 32px;
-  }
-  
-  .protector-controls {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  
-  .ctrl {
-    padding: 10px 15px;
-    font-size: 16px;
-    min-width: 60px;
-  }
-  
-  .win-light {
-    width: 300px;
-    height: 90px;
-  }
-  
-  .map-box {
-    max-width: 98vw;
-    max-height: 98vh;
-  }
+    @media (max-width: 992px) {
+      .panel-wrap {
+        transform: scale(0.5);
+      }
+      body {
+        padding: 10px;
+        align-items: center;
+      }
+      
+      /* تنظیمات برای المان‌ها در تبلت */
+      .led {
+        width: 40px;
+        height: 40px;
+      }
+      
+      /* موقعیت LED ها در تبلت */
+      .led-red, .led-yellow, .led-green {
+        left: 52% !important;
+        transform: translateX(-50%) !important;
+      }
+      
+      .led-red, .led-green {
+        top: 18% !important;
+      }
+      
+      .led-yellow {
+        top: 10% !important;
+      }
+      
+      .push-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 12px;
+      }
+      
+      .selector {
+        width: 40px;
+        height: 24px;
+        font-size: 12px;
+      }
+      
+      .mushroom {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .game-timer {
+        font-size: 18px;
+        padding: 6px 10px;
+      }
+      
+      .stage {
+        width: 22px;
+        height: 22px;
+        font-size: 11px;
+      }
+      
+      .protector-area {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .protector-display {
+        font-size: 24px;
+      }
+      
+      /* فن‌ها در تبلت */
+      .fan-wrap {
+        width: 140px;
+        height: 140px;
+      }
+      
+      .fan-blade {
+        width: 98px;
+        height: 98px;
+      }
+      
+      /* Fan Base در تبلت */
+      .fan-base {
+        position: absolute;
+        width: 110%;
+        height: 110%;
+        object-fit: contain;
+        top: 1%;
+        left: 1%;
+      }
+      
+      /* موقعیت فن ها در تبلت */
+      #fanBlue, #fanYellow {
+        transform: scale(0.9);
+      }
+    }
 
-  
-  
-  /* LED ها در موبایل عمودی */
-  .led {
-    width: 35px;
-    height: 35px;
-  }
-  
-  .led-red, .led-yellow, .led-green {
-    left: 55% !important;
-  }
-  
-  .led-red, .led-green {
-    top: 20% !important;
-  }
-  
-  .led-yellow {
-    top: 12% !important;
-  }
-  
-  /* Fan Base در موبایل عمودی */
-  .fan-base {
-    position: absolute;
-    width: 115%;
-    height: 115%;
-    object-fit: contain;
-    top: 2%;
-    left: 1.5%;
-  }
-  
-  /* فن‌ها در موبایل عمودی */
-  .fan-wrap {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .fan-blade {
-    width: 84px;
-    height: 84px;
-  }
-  
-  /* موقعیت فن ها در موبایل عمودی */
-  #fanBlue {
-    left: 48% !important;
-    top: 62% !important;
-  }
-  
-  #fanYellow {
-    left: 62% !important;
-    top: 62% !important;
-  }
-  .modal-box { 
-  position: relative; 
-  z-index: 60; 
-  background: #0b1220; 
-  padding: 18px; 
-  border-radius: 12px; 
-  min-width: 260px; 
-  color: #fff; 
-  box-shadow: 0 18px 50px rgba(0,0,0,0.6); 
-  transform: scale(.8); 
-  transition: transform .28s ease; 
-}
-.modal.open .modal-box { 
-  transform: scale(1); 
-  left: 50%;
-}
-}
+    @media (max-width: 768px) {
+      .panel-wrap {
+        transform: scale(0.45);
+      }
+      
+      /* تنظیمات مودال برای موبایل */
+      .modal-box {
+        min-width: 90vw;
+        max-width: 95vw;
+        padding: 15px;
+        margin: 10px;
+      }
+      
+      .protector-value {
+        font-size: 32px;
+      }
+      
+      .protector-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .ctrl {
+        padding: 10px 15px;
+        font-size: 16px;
+        min-width: 60px;
+      }
+      
+      .win-light {
+        width: 300px;
+        height: 90px;
+      }
+      
+      .map-box {
+        max-width: 98vw;
+        max-height: 98vh;
+      }
 
-/* حالت افقی موبایل - مهم ترین تغییرات */
-@media (max-height: 700px) and (orientation: landscape) {
-  .panel-wrap {
-    transform: scale(0.35) !important;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-  
-  body {
-    padding: 5px;
-    align-items: flex-start;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
+      /* LED ها در موبایل عمودی */
+      .led {
+        width: 35px;
+        height: 35px;
+      }
+      
+      .led-red, .led-yellow, .led-green {
+        left: 55% !important;
+      }
+      
+      .led-red, .led-green {
+        top: 20% !important;
+      }
+      
+      .led-yellow {
+        top: 12% !important;
+      }
+      
+      /* Fan Base در موبایل عمودی */
+      .fan-base {
+        position: absolute;
+        width: 115%;
+        height: 115%;
+        object-fit: contain;
+        top: 2%;
+        left: 1.5%;
+      }
+      
+      /* فن‌ها در موبایل عمودی */
+      .fan-wrap {
+        width: 120px;
+        height: 120px;
+      }
+      
+      .fan-blade {
+        width: 84px;
+        height: 84px;
+      }
+      
+      /* موقعیت فن ها در موبایل عمودی */
+      #fanBlue {
+        left: 48% !important;
+        top: 62% !important;
+      }
+      
+      #fanYellow {
+        left: 62% !important;
+        top: 62% !important;
+      }
+    }
 
-  .modal.open .modal-box {
-    transform: scale(0.8);
-    left: 50%;
-    bottom: 30%;
-  }
-  .modal-box {
-    position: relative !important;
-    z-index: 600 !important;
-    background: #0b1220;
-    padding: 18px;
-    border-radius: 12px;
-    min-width: 260px;
-    color: #fff;
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
-    transform: scale(.8);
-    LEFT: 50%;
-    bottom: 30%;
-    transition: transform .28s 
-ease;}
-   
-  
-  .map-close:hover {
-    background: rgba(0, 0, 0, 1) !important;
-  }
-  
+    /* حالت افقی موبایل - مهم ترین تغییرات */
+    @media (max-height: 700px) and (orientation: landscape) {
+      .panel-wrap {
+        transform: scale(0.35) !important;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+      
+      body {
+        padding: 5px;
+        align-items: flex-start;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
 
-  /* LED ها در حالت افقی */
-  .led {
-    width: 30px !important;
-    height: 30px !important;
-  }
-  
-  .led-red, .led-yellow, .led-green {
-    left: 71.8% !important;
-    transform: translateX(-50%) scale(1.8) !important;
-  }
-  
-  .led-red, .led-green {
-    top: 25% !important;
-  }
-  
-  .led-yellow {
-    top: 9% !important;
-  }
-  
-  .modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0);
-}
+      /* مودال نقشه در حالت افقی */
+      #mapModal .modal-box {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        max-width: 95vw !important;
+        max-height: 85vh !important;
+        width: 90vw !important;
+        height: 85vh !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        background: rgba(0, 0, 0, 0.95) !important;
+        border: 3px solid rgba(255,255,255,0.1) !important;
+      }
+      
+      #mapModal .map-box {
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 20px !important;
+        margin: 0 !important;
+      }
+      
+      .map-large {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain !important;
+        display: block !important;
+        margin: 0 auto !important;
+      }
+      
+      /* دکمه بستن نقشه در حالت افقی */
+      .map-close {
+        position: fixed !important;
+        top: 15px !important;
+        left: 15px !important;
+        z-index: 1000 !important;
+        background: rgba(0, 0, 0, 0.9) !important;
+        color: white !important;
+        border: 2px solid rgba(255,255,255,0.3) !important;
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 20px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+      }
+      
+      .map-close:hover {
+        background: rgba(0, 0, 0, 1) !important;
+      }
 
-  .modal-box { 
-  position: relative !important; 
-  z-index: 600 !important; 
-  background: #0b1220; 
-  padding: 18px; 
-  border-radius: 12px; 
-  min-width: 260px; 
-  color: #fff; 
-  box-shadow: 0 18px 50px rgba(0,0,0,0.6); 
-  transform: scale(.8); 
-  transition: transform .28s ease; 
-}
-.modal.open .modal-box { 
-  transform: scale(0.8); 
-  left: 50%;
-  bottom: 30%;
-}
-
-  
-  /* Fan Base در حالت افقی */
-  .fan-base {
-    position: absolute;
-    width: 105%;
-    height: 105%;
-    object-fit: contain;
-    top: 0.5%;
-    left: 0.5%;
-  }
-  
-  /* فن‌ها در حالت افقی */
-  .fan-wrap {
-    width: 100px !important;
-    height: 100px !important;
-  }
-  
-  .fan-blade {
-    width: 70px !important;
-    height: 70px !important;
-  }
-  
-  /* موقعیت فن ها در حالت افقی */
-  #fanBlue {
-    left: 57.2% !important;
-    top: 65% !important;
-    transform: translateX(-60%) scale(1.6) !important;
-  }
-  
-  #fanYellow {
+      /* LED ها در حالت افقی */
+      .led {
+        width: 30px !important;
+        height: 30px !important;
+      }
+      
+      .led-red, .led-yellow, .led-green {
+        left: 71.8% !important;
+        transform: translateX(-50%) scale(1.8) !important;
+      }
+      
+      .led-red, .led-green {
+        top: 25% !important;
+      }
+      
+      .led-yellow {
+        top: 9% !important;
+      }
+      
+      .modal-box { 
+        position: relative !important; 
+        z-index: 600 !important; 
+        background: #0b1220; 
+        padding: 18px; 
+        border-radius: 12px; 
+        min-width: 260px; 
+        color: #fff; 
+        box-shadow: 0 18px 50px rgba(0,0,0,0.6); 
+        transform: scale(.8); 
+        transition: transform .28s ease; 
+      }
+      
+      .modal.open .modal-box { 
+        transform: scale(0.8) !important; 
+        left: 50% !important;
+        bottom: 30% !important;
+        position: fixed !important;
+      }
+      
+      /* Fan Base در حالت افقی */
+      .fan-base {
+        position: absolute;
+        width: 105%;
+        height: 105%;
+        object-fit: contain;
+        top: 0.5%;
+        left: 0.5%;
+      }
+      
+      /* فن‌ها در حالت افقی */
+      .fan-wrap {
+        width: 100px !important;
+        height: 100px !important;
+      }
+      
+      .fan-blade {
+        width: 70px !important;
+        height: 70px !important;
+      }
+      
+      /* موقعیت فن ها در حالت افقی */
+      #fanBlue {
+        left: 57.2% !important;
+        top: 65% !important;
+        transform: translateX(-60%) scale(1.6) !important;
+      }
+      
+      #fanYellow {
         left: 67.8% !important;
         top: 65% !important;
         transform: scale(1.6) !important;
-  }
-  
-  /* سایر المان‌ها در حالت افقی */
-  .game-timer {
-    font-size: 14px;
-    padding: 4px 8px;
-    left: 2%;
-    top: 2%;
-  }
-  
-  .stages {
-    right: 2%;
-    top: 2%;
-    gap: 4px;
-  }
-  
-  .stage {
-    width: 18px;
-    height: 18px;
-    font-size: 9px;
-  }
-  .protector-area {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .protector-display {
-    font-size: 24px;
-  }
-  
-  .map-small {
+      }
+      
+      /* سایر المان‌ها در حالت افقی */
+      .game-timer {
+        font-size: 14px;
+        padding: 4px 8px;
+        left: 2%;
+        top: 2%;
+      }
+      
+      .stages {
+        right: 2%;
+        top: 2%;
+        gap: 4px;
+      }
+      
+      .stage {
+        width: 18px;
+        height: 18px;
+        font-size: 9px;
+      }
+      
+      .protector-area {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .protector-display {
+        font-size: 24px;
+      }
+      
+      .map-small {
         width: 250px;
         height: 120px;
         left: 80%;
-        bottom: 2%
-  }
-  
-  .error-badge {
-    right: 2%;
-    bottom: 2%;
-  }
-  
-  .win-light {
-    width: 250px;
-    height: 70px;
-    top: 10%;
-  }
+        bottom: 2%;
+      }
+      
+      .error-badge {
+        right: 2%;
+        bottom: 2%;
+      }
+      
+      .win-light {
+        width: 250px;
+        height: 70px;
+        top: 10%;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+      }
+    }
 
+    @media (max-width: 576px) {
+      .panel-wrap {
+        transform: scale(0.4);
+      }
+      
+      body {
+        padding: 8px;
+        min-height: 100vh;
+        overflow-y: auto;
+        overflow-x: scroll;
+      }
+      
+      .game-timer {
+        font-size: 16px;
+        left: 3%;
+        top: 3%;
+      }
+      
+      .stages {
+        right: 3%;
+        top: 3%;
+        gap: 5px;
+      }
+      
+      .stage {
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+      }
+      
+      .map-small {
+        width: 60px;
+        height: 45px;
+        left: 3%;
+        bottom: 3%;
+      }
+      
+      .error-badge {
+        right: 3%;
+        bottom: 3%;
+      }
+      
+      .win-light {
+        width: 250px;
+        height: 75px;
+        top: 8%;
+      }
+      
+      .protector-modal .modal-box {
+        min-width: 95vw;
+      }
+      
+      .protector-title {
+        font-size: 18px;
+      }
+      
+      .protector-value {
+        font-size: 28px;
+      }
+      
+      /* فن‌ها در موبایل کوچک عمودی */
+      .fan-wrap {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .fan-blade {
+        width: 70px;
+        height: 70px;
+      }
+      
+      /* Fan Base در موبایل کوچک */
+      .fan-base {
+        width: 110%;
+        height: 110%;
+        top: 1%;
+        left: 1%;
+      }
+    }
 
-@media (max-width: 576px) {
-  .panel-wrap {
-    transform: scale(0.4);
-  }
-  
-  body {
-    padding: 8px;
-    min-height: 100vh;
-    overflow-y: auto;
-    overflow-x: scroll;
-  }
-  
-  .game-timer {
-    font-size: 16px;
-    left: 3%;
-    top: 3%;
-  }
-  
-  .stages {
-    right: 3%;
-    top: 3%;
-    gap: 5px;
-  }
-  
-  .stage {
-    width: 20px;
-    height: 20px;
-    font-size: 10px;
-  }
-  
-  .map-small {
-    width: 60px;
-    height: 45px;
-    left: 3%;
-    bottom: 3%;
-  }
-  
-  .error-badge {
-    right: 3%;
-    bottom: 3%;
-  }
-  
-  .win-light {
-    width: 250px;
-    height: 75px;
-    top: 8%;
-  }
-  
-  .protector-modal .modal-box {
-    min-width: 95vw;
-  }
-  
-  .protector-title {
-    font-size: 18px;
-  }
-  
-  .protector-value {
-    font-size: 28px;
-  }
-  
-  /* فن‌ها در موبایل کوچک عمودی */
-  .fan-wrap {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .fan-blade {
-    width: 70px;
-    height: 70px;
-  }
-  
-  /* Fan Base در موبایل کوچک */
-  .fan-base {
-    width: 110%;
-    height: 110%;
-    top: 1%;
-    left: 1%;
-  }
-}
+    @media (max-width: 480px) {
+      .panel-wrap {
+        transform: scale(0.35);
+      }
+      
+      /* برای موبایل‌های خیلی کوچک */
+      .modal-box {
+        padding: 12px;
+      }
+      
+      .protector-value {
+        font-size: 24px;
+      }
+      
+      .ctrl {
+        padding: 8px 12px;
+        font-size: 14px;
+        min-width: 50px;
+      }
+      
+      .game-timer {
+        font-size: 14px;
+      }
+      
+      /* فن‌ها در موبایل بسیار کوچک */
+      .fan-wrap {
+        width: 90px;
+        height: 90px;
+      }
+      
+      .fan-blade {
+        width: 63px;
+        height: 63px;
+      }
+    }
 
-@media (max-width: 480px) {
-  .panel-wrap {
-    transform: scale(0.35);
-  }
-  
-  /* برای موبایل‌های خیلی کوچک */
-  .modal-box {
-    padding: 12px;
-  }
-  
-  .protector-value {
-    font-size: 24px;
-  }
-  
-  .ctrl {
-    padding: 8px 12px;
-    font-size: 14px;
-    min-width: 50px;
-  }
-  
-  .game-timer {
-    font-size: 14px;
-  }
-  
-  /* فن‌ها در موبایل بسیار کوچک */
-  .fan-wrap {
-    width: 90px;
-    height: 90px;
-  }
-  
-  .fan-blade {
-    width: 63px;
-    height: 63px;
-  }
-}
+    @media (max-width: 400px) {
+      .panel-wrap {
+        transform: scale(0.3);
+      }
+      
+      body {
+        padding: 5px;
+      }
+      
+      /* فن‌ها در موبایل فوق‌العاده کوچک */
+      .fan-wrap {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .fan-blade {
+        width: 56px;
+        height: 56px;
+      }
+      
+      /* Fan Base در موبایل خیلی کوچک */
+      .fan-base {
+        width: 105%;
+        height: 105%;
+        top: 0.5%;
+        left: 0.5%;
+      }
+    }
 
-@media (max-width: 400px) {
-  .panel-wrap {
-    transform: scale(0.3);
-  }
-  
-  body {
-    padding: 5px;
-  }
-  
-  /* فن‌ها در موبایل فوق‌العاده کوچک */
-  .fan-wrap {
-    width: 80px;
-    height: 80px;
-  }
-  
-  .fan-blade {
-    width: 56px;
-    height: 56px;
-  }
-  
-  /* Fan Base در موبایل خیلی کوچک */
-  .fan-base {
-    width: 105%;
-    height: 105%;
-    top: 0.5%;
-    left: 0.5%;
-  }
-}
+    /* بهبود عملکرد لمسی */
+    @media (hover: none) and (pointer: coarse) {
+      .push-btn, .selector, .mushroom, .joystick, .ctrl {
+        min-height: 44px;
+        min-width: 44px;
+      }
+      
+      .push-btn {
+        font-size: 14px;
+      }
+      
+      .selector {
+        font-size: 13px;
+      }
+    }
 
-/* بهبود عملکرد لمسی */
-@media (hover: none) and (pointer: coarse) {
-  .push-btn, .selector, .mushroom, .joystick, .ctrl {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  .push-btn {
-    font-size: 14px;
-  }
-  
-  .selector {
-    font-size: 13px;
-  }
-}
+    /* جلوگیری از زوم روی دکمه‌ها در iOS */
+    @media (max-width: 768px) {
+      input, select, textarea, button {
+        font-size: 16px !important;
+      }
+    }
 
-/* جلوگیری از زوم روی دکمه‌ها در iOS */
-@media (max-width: 768px) {
-  input, select, textarea, button {
-    font-size: 16px !important;
-  }
-}
+    /* iOS-specific fixes */
+    @supports (-webkit-touch-callout: none) {
+      /* iOS-only styles */
+      body {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: pointer;
+      }
+      
+      .protector-area {
+        cursor: pointer;
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
+        tap-highlight-color: rgba(0,0,0,0);
+      }
+      
+      .protector-area.touching {
+        background-color: rgba(255,255,0,0.3) !important;
+        transform: scale(0.98);
+        transition: transform 0.1s;
+      }
+      
+      .ctrl.active {
+        background: #1e40af !important;
+        transform: scale(0.95);
+      }
+      
+      /* جلوگیری از zoom دو بار لمس */
+      input, textarea, button, .protector-area, .ctrl {
+        touch-action: manipulation;
+        font-size: 16px !important; /* جلوگیری از zoom در iOS */
+      }
+      
+      .modal {
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      /* fix برای position: fixed در iOS */
+      .modal {
+        position: fixed;
+        height: 100%;
+        width: 100%;
+      }
+    }
+
+    /* جلوگیری از highlight آبی در iOS Safari */
+    .protector-area, .ctrl, button {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+
+    /* بهبود response لمسی */
+    @media (hover: none) and (pointer: coarse) {
+      .protector-area {
+        min-height: 70px;
+        min-width: 70px;
+      }
+      
+      .ctrl {
+        min-height: 60px;
+        min-width: 60px;
+        padding: 15px;
+      }
+    }
   </style>
 </head>
 
@@ -1241,6 +1253,7 @@ ease;}
           <div class="modal-backdrop" id="mapBackdrop"></div>
           <div class="modal-box map-box">
               <img src="assets/map_large.jpg" alt="نقشه بزرگ بازی" class="map-large">
+              <button class="map-close" onclick="closeMapModal()">✕</button>
           </div>
       </div>
       <!-- خطا -->
@@ -1249,8 +1262,8 @@ ease;}
       <!-- چراغ برنده -->
       <div class="win-light" id="winLight" aria-hidden="true"></div>
     </div>
-    
-    </main>
+  </main>
+
   <!-- مودال محافظ -->
   <div class="modal" id="protectorModal" aria-hidden="true">
     <div class="modal-backdrop" id="modalBackdrop"></div>
@@ -1268,9 +1281,7 @@ ease;}
     </div>
   </div>
 
- 
-
-   <script>
+  <script>
     /* app.js - قرار بده در همان پوشه */
     /* فرض: تمامی عکس‌ها و فونت‌ها در assets/ قرار دارند */
     /* مسیر صداها */
@@ -1334,6 +1345,7 @@ function playSound(src, volume = 0.6, loop = false){
     const winLight = $('#winLight');
     const fanBladeBlue = $('#fanBladeBlue');
     const fanBladeYellow = $('#fanBladeYellow');
+    const buzzerLight = $('#buzzerLight');
 
     /* آپدیت نمایش محافظ روی پنل */
     function updateProtectorDisplayOnPanel() {
@@ -1371,396 +1383,353 @@ function playSound(src, volume = 0.6, loop = false){
       gameTimerEl.textContent = formatTime(state.gameTimerSec); 
     }
 
-   /* start game timer  */
- 
-function startGameTimer() {
-    if(state.gameRunning) return;
-    state.gameRunning = true;
-    updateGameTimerDisplay();
-    state.gameTimerInterval = setInterval(() => {
+    /* start game timer  */
+    function startGameTimer() {
+      if(state.gameRunning) return;
+      state.gameRunning = true;
+      updateGameTimerDisplay();
+      state.gameTimerInterval = setInterval(() => {
         state.gameTimerSec--;
         updateGameTimerDisplay();
         if(state.gameTimerSec <= 0) {
-            clearInterval(state.gameTimerInterval);
-            state.gameRunning = false;
-            
-            // روشن کردن چراغ بیزر
-            const buzzerLight = document.getElementById('buzzerLight');
-            buzzerLight.classList.add('blinking');
-            
-            // پخش صدای بیزر (اگر فایل صوتی داری)
-            // playSound('assets/buzzer.mp3', 0.7);
-            
-            // تأخیر قبل از نمایش پیام
-            setTimeout(() => {
-                showError();
-                alert('زمان بازی به پایان رسید — شکست.');
-                window.location.reload();
-            }, 2000); // 2 ثانیه بعد از روشن شدن چراغ
-            
+          clearInterval(state.gameTimerInterval);
+          state.gameRunning = false;
+          
+          // روشن کردن چراغ بیزر
+          buzzerLight.classList.add('blinking');
+          
+          // تأخیر قبل از نمایش پیام
+          setTimeout(() => {
+            showError();
+            alert('زمان بازی به پایان رسید — شکست.');
+            window.location.reload();
+          }, 2000);
         }
-    }, 1000);
-  }
+      }, 1000);
+    }
 
-  function openProtectorModal() {
-  protectorModal.classList.add('open');
-  protectorModal.setAttribute('aria-hidden','false');
-  state.protectorActive = true;
-  protectorValueEl.textContent = 'S' + state.protectorValue;
-  
-  // در iOS از playSound با تاخیر استفاده کن
-  setTimeout(() => {
-    playSound(assets.click, 0.25);
-  }, 100);
-}
+    /* ========== PROTECTOR MODAL FUNCTIONS ========== */
+    function openProtectorModal() {
+      protectorModal.classList.add('open');
+      protectorModal.setAttribute('aria-hidden','false');
+      state.protectorActive = true;
+      protectorValueEl.textContent = 'S' + state.protectorValue;
+      
+      // در iOS از playSound با تاخیر استفاده کن
+      setTimeout(() => {
+        playSound(assets.click, 0.25);
+      }, 100);
+    }
 
-function closeProtectorModal() {
-  protectorModal.classList.remove('open');
-  protectorModal.setAttribute('aria-hidden','true');
-  state.protectorActive = false;
-  updateProtectorDisplayOnPanel();
-}
+    function closeProtectorModal() {
+      protectorModal.classList.remove('open');
+      protectorModal.setAttribute('aria-hidden','true');
+      state.protectorActive = false;
+      updateProtectorDisplayOnPanel();
+    }
 
-/* ========== FIX FOR iOS ========== */
-/* iOS نیاز به handling خاص برای touch events داره */
+    /* ========== FIX FOR iOS ========== */
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-// Flag برای تشخیص iOS
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-// فعال‌کردن touch events در iOS
-if (isIOS) {
-  console.log('iOS device detected, applying iOS-specific fixes');
-  
-  // اضافه کردن این meta tag اگر وجود نداره
-  if (!document.querySelector('meta[name="viewport"][content*="user-scalable=no"]')) {
-    const meta = document.createElement('meta');
-    meta.name = 'viewport';
-    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-    document.head.appendChild(meta);
-  }
-}
-
-/* Event handling مخصوص iOS */
-let lastTouchTime = 0;
-
-protectorArea.addEventListener('click', function(e) {
-  // در iOS از click استفاده کن
-  if (isIOS) {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    
-    // جلوگیری از double tap
-    const currentTime = Date.now();
-    if (currentTime - lastTouchTime < 500) return;
-    lastTouchTime = currentTime;
-    
-    openProtectorModal();
-    return false;
-  }
-});
-
-// برای iOS از touchstart + touchend استفاده کن
-protectorArea.addEventListener('touchstart', function(e) {
-  if (isIOS) {
-    e.preventDefault();
-    // اضافه کردن effect لمسی
-    this.classList.add('touching');
-  }
-}, { passive: false });
-
-protectorArea.addEventListener('touchend', function(e) {
-  if (isIOS) {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    
-    this.classList.remove('touching');
-    
-    // جلوگیری از double tap
-    const currentTime = Date.now();
-    if (currentTime - lastTouchTime < 500) return;
-    lastTouchTime = currentTime;
-    
-    openProtectorModal();
-    return false;
-  }
-}, { passive: false });
-
-protectorArea.addEventListener('touchmove', function(e) {
-  if (isIOS) {
-    e.preventDefault();
-  }
-}, { passive: false });
-
-protectorArea.addEventListener('touchcancel', function(e) {
-  if (isIOS) {
-    this.classList.remove('touching');
-  }
-}, { passive: false });
-
-/* برای non-iOS devices */
-if (!isIOS) {
-  protectorArea.addEventListener('click', function(e) {
-    e.preventDefault();
-    openProtectorModal();
-  });
-}
-
-/* کنترل محافظ - نسخه iOS compatible */
-let protInterval = null;
-let isHolding = false;
-
-// دکمه افزایش
-protUp.addEventListener('touchstart', function(e) {
-  if (isIOS) {
-    e.preventDefault();
-    this.classList.add('active');
-    
-    incrementProtector();
-    isHolding = true;
-    
-    // تاخیر قبل از شروع repeat
-    setTimeout(() => {
-      if (isHolding) {
-        protInterval = setInterval(incrementProtector, 100);
+    // فعال‌کردن touch events در iOS
+    if (isIOS) {
+      console.log('iOS device detected, applying iOS-specific fixes');
+      
+      // اضافه کردن این meta tag اگر وجود نداره
+      if (!document.querySelector('meta[name="viewport"][content*="user-scalable=no"]')) {
+        const meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+        document.head.appendChild(meta);
       }
-    }, 500);
-  }
-}, { passive: false });
+    }
 
-protUp.addEventListener('touchend', function(e) {
-  if (isIOS) {
-    e.preventDefault();
-    this.classList.remove('active');
-    clearInterval(protInterval);
-    isHolding = false;
-  }
-}, { passive: false });
+    /* Event handling مخصوص iOS */
+    let lastTouchTime = 0;
 
-protUp.addEventListener('touchcancel', function(e) {
-  if (isIOS) {
-    this.classList.remove('active');
-    clearInterval(protInterval);
-    isHolding = false;
-  }
-}, { passive: false });
-
-// دکمه کاهش
-protDown.addEventListener('touchstart', function(e) {
-  if (isIOS) {
-    e.preventDefault();
-    this.classList.add('active');
-    
-    decrementProtector();
-    isHolding = true;
-    
-    setTimeout(() => {
-      if (isHolding) {
-        protInterval = setInterval(decrementProtector, 100);
+    protectorArea.addEventListener('click', function(e) {
+      // در iOS از click استفاده کن
+      if (isIOS) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        
+        // جلوگیری از double tap
+        const currentTime = Date.now();
+        if (currentTime - lastTouchTime < 500) return;
+        lastTouchTime = currentTime;
+        
+        openProtectorModal();
+        return false;
       }
-    }, 500);
-  }
-}, { passive: false });
+    });
 
-protDown.addEventListener('touchend', function(e) {
-  if (isIOS) {
-    e.preventDefault();
-    this.classList.remove('active');
-    clearInterval(protInterval);
-    isHolding = false;
-  }
-}, { passive: false });
+    // برای iOS از touchstart + touchend استفاده کن
+    protectorArea.addEventListener('touchstart', function(e) {
+      if (isIOS) {
+        e.preventDefault();
+        // اضافه کردن effect لمسی
+        this.classList.add('touching');
+      }
+    }, { passive: false });
 
-protDown.addEventListener('touchcancel', function(e) {
-  if (isIOS) {
-    this.classList.remove('active');
-    clearInterval(protInterval);
-    isHolding = false;
-  }
-}, { passive: false });
+    protectorArea.addEventListener('touchend', function(e) {
+      if (isIOS) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        
+        this.classList.remove('touching');
+        
+        // جلوگیری از double tap
+        const currentTime = Date.now();
+        if (currentTime - lastTouchTime < 500) return;
+        lastTouchTime = currentTime;
+        
+        openProtectorModal();
+        return false;
+      }
+    }, { passive: false });
 
-// برای non-iOS
-if (!isIOS) {
-  /* متغیرهای اینتروال برای نگه داشتن دکمه */
-  let protUpInterval, protDownInterval;
+    protectorArea.addEventListener('touchmove', function(e) {
+      if (isIOS) {
+        e.preventDefault();
+      }
+    }, { passive: false });
 
-  protUp.addEventListener('mousedown', function() {
-    incrementProtector();
-    protUpInterval = setInterval(incrementProtector, 30);
-  });
+    protectorArea.addEventListener('touchcancel', function(e) {
+      if (isIOS) {
+        this.classList.remove('touching');
+      }
+    }, { passive: false });
 
-  protUp.addEventListener('mouseup', function() {
-    clearInterval(protUpInterval);
-  });
+    /* برای non-iOS devices */
+    if (!isIOS) {
+      protectorArea.addEventListener('click', function(e) {
+        e.preventDefault();
+        openProtectorModal();
+      });
+    }
 
-  protUp.addEventListener('mouseleave', function() {
-    clearInterval(protUpInterval);
-  });
+    /* کنترل محافظ - نسخه iOS compatible */
+    let protInterval = null;
+    let isHolding = false;
 
-  protDown.addEventListener('mousedown', function() {
-    decrementProtector();
-    protDownInterval = setInterval(decrementProtector, 30);
-  });
+    // دکمه افزایش
+    protUp.addEventListener('touchstart', function(e) {
+      if (isIOS) {
+        e.preventDefault();
+        this.classList.add('active');
+        
+        incrementProtector();
+        isHolding = true;
+        
+        // تاخیر قبل از شروع repeat
+        setTimeout(() => {
+          if (isHolding) {
+            protInterval = setInterval(incrementProtector, 100);
+          }
+        }, 500);
+      }
+    }, { passive: false });
 
-  protDown.addEventListener('mouseup', function() {
-    clearInterval(protDownInterval);
-  });
+    protUp.addEventListener('touchend', function(e) {
+      if (isIOS) {
+        e.preventDefault();
+        this.classList.remove('active');
+        clearInterval(protInterval);
+        isHolding = false;
+      }
+    }, { passive: false });
 
-  protDown.addEventListener('mouseleave', function() {
-    clearInterval(protDownInterval);
-  });
+    protUp.addEventListener('touchcancel', function(e) {
+      if (isIOS) {
+        this.classList.remove('active');
+        clearInterval(protInterval);
+        isHolding = false;
+      }
+    }, { passive: false });
 
-  protUp.addEventListener('click', incrementProtector);
-  protDown.addEventListener('click', decrementProtector);
-}
+    // دکمه کاهش
+    protDown.addEventListener('touchstart', function(e) {
+      if (isIOS) {
+        e.preventDefault();
+        this.classList.add('active');
+        
+        decrementProtector();
+        isHolding = true;
+        
+        setTimeout(() => {
+          if (isHolding) {
+            protInterval = setInterval(decrementProtector, 100);
+          }
+        }, 500);
+      }
+    }, { passive: false });
 
-/* توابع اصلی */
-function incrementProtector() {
-  state.protectorValue++;
-  if(state.protectorValue > 500) state.protectorValue = 1;
-  updateProtectorModalDisplay();
-  
-  // صدای ملایم‌تر برای iOS
-  if (isIOS) {
-    playSound(assets.click, 0.1);
-  } else {
-    playSound(assets.click, 0.2);
-  }
-}
+    protDown.addEventListener('touchend', function(e) {
+      if (isIOS) {
+        e.preventDefault();
+        this.classList.remove('active');
+        clearInterval(protInterval);
+        isHolding = false;
+      }
+    }, { passive: false });
 
-function decrementProtector() {
-  state.protectorValue = Math.max(1, state.protectorValue - 1);
-  updateProtectorModalDisplay();
-  
-  if (isIOS) {
-    playSound(assets.click, 0.1);
-  } else {
-    playSound(assets.click, 0.2);
-  }
-}
+    protDown.addEventListener('touchcancel', function(e) {
+      if (isIOS) {
+        this.classList.remove('active');
+        clearInterval(protInterval);
+        isHolding = false;
+      }
+    }, { passive: false });
 
-function updateProtectorModalDisplay() {
-  protectorValueEl.textContent = 'S' + state.protectorValue;
-  protectorValueEl.classList.add('changing');
-  setTimeout(() => {
-    protectorValueEl.classList.remove('changing');
-  }, 100);
-}
+    // برای non-iOS
+    if (!isIOS) {
+      /* متغیرهای اینتروال برای نگه داشتن دکمه */
+      let protUpInterval, protDownInterval;
 
-/* SET behavior */
-protSet.addEventListener('click', () => {
-  playSound(assets.click, 0.3);
-  if(state.protectorValue === 1 && state.stage === 2 && state.signals.LED4 === 'on') {
-    setTimeout(() => {
-      setLED('LED4', false);
-      setLED('LED3', true);
-      state.stage = 3;
-      setStageDone(3);
-      closeProtectorModal();
-    }, 1000);
-  } else {
-    closeProtectorModal();
-  }
-});
+      protUp.addEventListener('mousedown', function() {
+        incrementProtector();
+        protUpInterval = setInterval(incrementProtector, 30);
+      });
 
-/* close modal */
-protClose.addEventListener('click', closeProtectorModal);
-modalBackdrop.addEventListener('click', closeProtectorModal);
+      protUp.addEventListener('mouseup', function() {
+        clearInterval(protUpInterval);
+      });
 
-// برای iOS
-if (isIOS) {
-  protClose.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    closeProtectorModal();
-  }, { passive: false });
-  
-  modalBackdrop.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    closeProtectorModal();
-  }, { passive: false });
-}
+      protUp.addEventListener('mouseleave', function() {
+        clearInterval(protUpInterval);
+      });
 
-    /* map click toggle */
+      protDown.addEventListener('mousedown', function() {
+        decrementProtector();
+        protDownInterval = setInterval(decrementProtector, 30);
+      });
+
+      protDown.addEventListener('mouseup', function() {
+        clearInterval(protDownInterval);
+      });
+
+      protDown.addEventListener('mouseleave', function() {
+        clearInterval(protDownInterval);
+      });
+
+      protUp.addEventListener('click', incrementProtector);
+      protDown.addEventListener('click', decrementProtector);
+    }
+
+    /* توابع اصلی محافظ */
+    function incrementProtector() {
+      state.protectorValue++;
+      if(state.protectorValue > 500) state.protectorValue = 1;
+      updateProtectorModalDisplay();
+      
+      // صدای ملایم‌تر برای iOS
+      if (isIOS) {
+        playSound(assets.click, 0.1);
+      } else {
+        playSound(assets.click, 0.2);
+      }
+    }
+
+    function decrementProtector() {
+      state.protectorValue = Math.max(1, state.protectorValue - 1);
+      updateProtectorModalDisplay();
+      
+      if (isIOS) {
+        playSound(assets.click, 0.1);
+      } else {
+        playSound(assets.click, 0.2);
+      }
+    }
+
+    function updateProtectorModalDisplay() {
+      protectorValueEl.textContent = 'S' + state.protectorValue;
+      protectorValueEl.classList.add('changing');
+      setTimeout(() => {
+        protectorValueEl.classList.remove('changing');
+      }, 100);
+    }
+
+    /* SET behavior */
+    protSet.addEventListener('click', () => {
+      playSound(assets.click, 0.3);
+      if(state.protectorValue === 1 && state.stage === 2 && state.signals.LED4 === 'on') {
+        setTimeout(() => {
+          setLED('LED4', false);
+          setLED('LED3', true);
+          state.stage = 3;
+          setStageDone(3);
+          closeProtectorModal();
+        }, 1000);
+      } else {
+        closeProtectorModal();
+      }
+    });
+
+    /* close modal */
+    protClose.addEventListener('click', closeProtectorModal);
+    modalBackdrop.addEventListener('click', closeProtectorModal);
+
+    // برای iOS
+    if (isIOS) {
+      protClose.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        closeProtectorModal();
+      }, { passive: false });
+      
+      modalBackdrop.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        closeProtectorModal();
+      }, { passive: false });
+    }
+
+    /* ========== MAP MODAL FUNCTIONS ========== */
+    const mapLarge = $('.map-large');
+
+    /* باز کردن نقشه */
     mapSmall.addEventListener('click', () => {
       mapModal.classList.add('open');
-      mapModal.setAttribute('aria-hidden','false');
+      document.body.style.overflow = 'hidden';
     });
-    mapModal.addEventListener('click', () => mapModal.classList.remove('open'));
-// عناصر جدید
-const mapLarge = $('.map-large');
 
-/* باز کردن نقشه */
-mapSmall.addEventListener('click', () => {
-  mapModal.classList.add('open');
-  document.body.style.overflow = 'hidden'; // جلوگیری از اسکرول
-});
+    /* بستن نقشه */
+    function closeMapModal() {
+      mapModal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
 
-/* بستن نقشه */
-function closeMapModal() {
-  mapModal.classList.remove('open');
-  document.body.style.overflow = ''; // بازگشت اسکرول
-}
+    // بستن با کلیک روی backdrop
+    mapBackdrop.addEventListener('click', closeMapModal);
 
-// بستن با کلیک روی backdrop
-mapBackdrop.addEventListener('click', closeMapModal);
+    // بستن با کلید ESC
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape' && mapModal.classList.contains('open')) {
+        closeMapModal();
+      }
+    });
 
-// بستن با کلید ESC
-document.addEventListener('keydown', (e) => {
-  if(e.key === 'Escape' && mapModal.classList.contains('open')) {
-    closeMapModal();
-  }
-});
+    // بستن با کلیک روی دکمه بستن
+    if ($('.map-close')) {
+      $('.map-close').addEventListener('click', closeMapModal);
+    }
 
-// بستن با کلیک روی خود نقشه بزرگ (اختیاری)
-mapLarge.addEventListener('click', (e) => {
-  e.stopPropagation(); // جلوگیری از بستن با کلیک روی خود عکس
-});
+    // بستن با کلیک روی خود نقشه بزرگ (اختیاری)
+    mapLarge.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    /* ========== GAME LOGIC ========== */
     /* S0 mushroom - start game */
-   /* شروع بازی - LED قرمز روشن */
-$('#S0').addEventListener('click', () => {
-  playSound(assets.click, 0.3);
-    if(state.stage === 0) {
+    $('#S0').addEventListener('click', () => {
+      playSound(assets.click, 0.3);
+      if(state.stage === 0) {
         state.stage = 1;
-        setLED('LED3', true);  // قرمز روشن
-        setLED('LED1', false); // سبز خاموش
+        setLED('LED3', true);
+        setLED('LED1', false);
         setStageDone(1);
         startGameTimer();
-    }
-});
-
-/* مرحله 2 - LED زرد روشن، قرمز خاموش */
-function checkStageProgress(kind, id) {
-    if(state.stage === 1) {
-        if(kind === 'push' && id === 'S1') {
-            if(state.selector.S2 && state.selector.S2 !== 'left') {
-                setLED('LED4', true);  // زرد روشن
-                setLED('LED3', false); // قرمز خاموش
-                setLED('LED1', false); // سبز خاموش
-                state.stage = 2;
-                setStageDone(2);
-                state.protectorValue = 300;
-                updateProtectorDisplay();
-            } else {
-                showError();
-                animateShake(document.getElementById('S1'));
-            }
-        }
-    }
-}
-
-/* مرحله 3 - LED سبز روشن، زرد خاموش */
-protSet.addEventListener('click', () => {
-    if(state.protectorValue === 1 && state.stage === 2 && state.signals.LED4 === 'on') {
-        setTimeout(() => {
-            setLED('LED4', false); // زرد خاموش
-            setLED('LED1', true);  // سبز روشن
-            state.stage = 3;
-            setStageDone(3);
-            closeProtectorModal();
-        }, 1000);
-    } else {
-        closeProtectorModal();
-    }
-});
+      }
+    });
 
     /* selectors toggle left/right */
     ['S2','S3','S5'].forEach(id => {
@@ -1785,84 +1754,26 @@ protSet.addEventListener('click', () => {
     });
 
     /* push buttons behavior - خودبازگشت */
-    // اضافه کردن به لیست پوش باتن‌ها
-['S1','S4_START','S4_STOP','S6_START','S6_STOP','S7','S8','S10'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('click', () => {
-    playSound(assets.click, 0.2);
-    const now = Date.now();
-    
-    // فشار دادن موقت
-    el.setAttribute('aria-pressed', 'true');
-    state.pushes[id] = true;
-    state.lastPressTimestamps[id] = now;
-    
-    // بازگشت خودکار بعد از 300ms
-    setTimeout(() => {
-      el.setAttribute('aria-pressed', 'false');
-      state.pushes[id] = false;
-    }, 200);
-    
-    checkStageProgress('push', id);
-  });
-});
-
-// آپدیت منطق فن‌ها
-function checkStageProgress(kind, id) {
-  // ... کدهای قبلی
-  
-  // stage 4: روشن کردن فن آبی با S6_START + S7
-  if(state.stage === 3 || state.stage === 4) {
-    if(kind === 'push' && (id === 'S6_START' || id === 'S7')) {
-      if(isSimultaneous('S6_START','S7')) {
-        if(state.stage >= 3) {
-          setFan('blue', true);
-          setStageDone(4);
-          state.stage = 4;
-        }  
-        else {
-          showError(); 
-          animateShake(document.getElementById(id));
-        }
-      }
-    }
-  }
-
-  // stage 5: خاموش کردن فن آبی با S6_STOP سپس روشن کردن فن زرد با S4_START + S8
-  if(state.stage >= 4 && state.stage < 6) {
-    if(kind === 'push' && id === 'S6_STOP' && state.fan.blue) {
-      setFan('blue', false);
-    }
-    if(kind === 'push' && (id === 'S4_START' || id === 'S8')) {
-      if(isSimultaneous('S4_START','S8')) {
-        if(!state.fan.blue) {
-          setFan('yellow', true);
-          setStageDone(5);
-          state.stage = 5;
-        } else {
-          showError();
-        }
-      }
-    }
-  }
-
-  // stage 6: اضافه کردن فن آبی در حین کار فن زرد
-  if(state.stage === 5) {
-    if(state.selector.S3 && state.selector.S5 && state.selector.S3 !== 'left' && state.selector.S5 !== 'left') {
-      if(isSimultaneous('S6_START','S7')) {
-        if(state.fan.yellow) {
-          if(!state._stage6Step1) state._stage6Step1 = true;
-        }
-      }
-      if(state._stage6Step1 && isSimultaneous('S4_START','S8')) {
-        setFan('blue', true);
-        setStageDone(6);
-        state.stage = 6;
-        state._stage6Step1 = false;
-      }
-    }
-  }
-}
+    ['S1','S4_START','S4_STOP','S6_START','S6_STOP','S7','S8','S10'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('click', () => {
+        playSound(assets.click, 0.2);
+        const now = Date.now();
+        
+        // فشار دادن موقت
+        el.setAttribute('aria-pressed', 'true');
+        state.pushes[id] = true;
+        state.lastPressTimestamps[id] = now;
+        
+        // بازگشت خودکار بعد از 300ms
+        setTimeout(() => {
+          el.setAttribute('aria-pressed', 'false');
+          state.pushes[id] = false;
+        }, 200);
+        
+        checkStageProgress('push', id);
+      });
+    });
 
     /* fan control helper: simultaneous detection within 700ms */
     function isSimultaneous(idA, idB) {
@@ -1950,26 +1861,23 @@ function checkStageProgress(kind, id) {
         }
       }
 
-     // stage 6: اضافه کردن فن آبی در حین کار فن زرد
-if(state.stage === 5) {
-  // شرط: سلکتورها چرخیده + فن زرد روشن
-  const selectorsRotated = state.selector.S3 !== 'left' && state.selector.S5 !== 'left';
-  const yellowFanOn = state.fan.yellow;
-  
-  if(selectorsRotated && yellowFanOn) {
-    // منتظر S6_START + S7 باش
-    if(kind === 'push' && (id === 'S6_START' || id === 'S7')) {
-      if(isSimultaneous('S6_START','S7')) {
-        // بعد از S6_START + S7، فن آبی رو روشن کن
-        setFan('blue', true);
-        playSound(assets.fan, 0.35, true);
-        setStageDone(6);
-        state.stage = 6;
-        console.log('✅ stage 6 کامل شد - فن آبی اضافه شد');
+      // stage 6: اضافه کردن فن آبی در حین کار فن زرد
+      if(state.stage === 5) {
+        const selectorsRotated = state.selector.S3 !== 'left' && state.selector.S5 !== 'left';
+        const yellowFanOn = state.fan.yellow;
+        
+        if(selectorsRotated && yellowFanOn) {
+          if(kind === 'push' && (id === 'S6_START' || id === 'S7')) {
+            if(isSimultaneous('S6_START','S7')) {
+              setFan('blue', true);
+              playSound(assets.fan, 0.35, true);
+              setStageDone(6);
+              state.stage = 6;
+            }
+          }
+        }
       }
-    }
-  }
-}
+
       // stage 7
       if(state.stage === 6) {
         if(state.fan.blue && state.fan.yellow) {
@@ -2003,9 +1911,6 @@ if(state.stage === 5) {
       ], { duration: 360, iterations: 1 });
     }
 
-// یا برای تست دستی، این رو در کنسول اجرا کن:
-// document.getElementById('winLight').classList.add('on')
-
     /* init */
     document.addEventListener('keydown', (e) => {
       if(e.key === 'Enter' || e.key === ' ') {
@@ -2013,90 +1918,6 @@ if(state.stage === 5) {
         if(active && active.click) active.click();
       }
     });
-/* ---- مقیاس پنل ---- */
-function autoScalePanel() {
-    const panel = document.getElementById("panel");
-    const warning = document.getElementById("rotate-warning");
-
-    const realW = 1808;
-    const realH = 592;
-
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
-    // اگر گوشی عمودی است
-    if (h > w) {
-        warning.style.display = "block";
-        panel.style.display = "none";
-        return;
-    }
-
-    warning.style.display = "none";
-    panel.style.display = "block";
-
-    const scale = Math.min(w / realW, h / realH);
-    panel.style.transform = `scale(${scale})`;
-}
-
-window.addEventListener("load", autoScalePanel);
-window.addEventListener("resize", autoScalePanel);
-
-/* ---- منطق مودال محافظ ---- */
-
-let protectorValue = 300;
-let protectorSetMode = false;
-
-const modal = document.getElementById("protectorModal");
-const valueBox = document.getElementById("ts-value");
-const btnSet = document.getElementById("btn-set");
-const btnUp = document.getElementById("btn-up");
-const btnDown = document.getElementById("btn-down");
-
-/* باز کردن مودال → حتماً از پنل جداست و 100٪ کار می‌کند */
-function openProtectorModal() {
-    modal.style.display = "flex";
-}
-
-function closeProtectorModal() {
-    modal.style.display = "none";
-}
-
-/* کلیک روی بیرون مودال → بسته شود */
-modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-        closeProtectorModal();
-    }
-});
-
-/* دکمه SET */
-btnSet.onclick = () => {
-    protectorSetMode = true;
-};
-
-/* دکمه بالا */
-btnUp.onclick = () => {
-    if (!protectorSetMode) return;
-
-    protectorValue++;
-    if (protectorValue > 500) protectorValue = 1;
-
-    valueBox.textContent = "S" + protectorValue;
-};
-
-/* دکمه پایین */
-btnDown.onclick = () => {
-    if (!protectorSetMode) return;
-
-    protectorValue--;
-    if (protectorValue < 1) protectorValue = 1;
-
-    valueBox.textContent = "S" + protectorValue;
-};
-
-/* نمونه → وقتی روی protector در پنل کلیک شود */
-document.getElementById("test-dot").onclick = () => {
-    openProtectorModal();
-};
 
     // مقدار اولیه محافظ
     updateProtectorDisplayOnPanel();
